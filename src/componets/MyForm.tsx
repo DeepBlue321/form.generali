@@ -6,6 +6,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { phoneRegExp } from "../lib/Regex";
+import styled from "@emotion/styled";
 
 interface FormData {
   name: string;
@@ -29,13 +30,31 @@ const schema = Yup.object().shape({
     .required("Pole Email je poviné"),
 });
 
+const MyStyledButton = styled("button")({
+  padding: 10, // means "1px", NOT "theme.spacing(1)"
+  background: "#CB5F5D",
+  color: "white",
+  border: "none",
+  borderRadius: 6,
+  marginLeft: "auto",
+  boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+  cursor: "pointer",
+});
+
+const MyStyledForm = styled("form")((props) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: 14,
+  paddingTop: "30%", // means "1px", NOT "theme.spacing(1)"
+}));
+
 function MyForm() {
   const [selectedValue, setSelectedValue] = useState("Čeština");
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty, isValid },
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -51,83 +70,71 @@ function MyForm() {
 
   return (
     <Container maxWidth="sm">
-      <Paper elevation={3} style={{ padding: "20px" }}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Controller
-            name="name"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                label="Jméno"
-                margin="normal"
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
-            )}
-          />
-          <Controller
-            name="telephone"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                label="Telefon"
-                margin="normal"
-                error={!!errors.telephone}
-                helperText={errors.telephone?.message}
-              />
-            )}
-          />
-          <Controller
-            name="email"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                label="Email"
-                type="email"
-                margin="normal"
-                error={!!errors.email}
-                helperText={errors.email?.message}
-              />
-            )}
-          />
-          <Controller
-            name="language"
-            control={control}
-            defaultValue=""
-            render={({}) => (
-              <Select
-                fullWidth
-                value={selectedValue}
-                label="Hlavní jazyk"
-                onChange={handleChange}
-              >
-                {languages.map((value) => {
-                  return <MenuItem value={value}>{value}</MenuItem>;
-                })}
-              </Select>
-            )}
-          />
+      <MyStyledForm onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          name="name"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField
+              {...field}
+              fullWidth
+              label="Jméno"
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+          )}
+        />
+        <Controller
+          name="telephone"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField
+              {...field}
+              fullWidth
+              label="Telefon"
+              error={!!errors.telephone}
+              helperText={errors.telephone?.message}
+            />
+          )}
+        />
+        <Controller
+          name="email"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField
+              {...field}
+              fullWidth
+              label="Email"
+              type="email"
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+          )}
+        />
+        <Controller
+          name="language"
+          control={control}
+          defaultValue=""
+          render={({}) => (
+            <Select
+              fullWidth
+              value={selectedValue}
+              label="Hlavní jazyk"
+              margin="dense"
+              onChange={handleChange}
+            >
+              {languages.map((value) => {
+                return <MenuItem value={value}>{value}</MenuItem>;
+              })}
+            </Select>
+          )}
+        />
 
-          <Button
-            disabled={isDirty}
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-          >
-            Submit
-          </Button>
-        </form>
-      </Paper>
+        <MyStyledButton type="submit">Submit</MyStyledButton>
+      </MyStyledForm>
     </Container>
   );
 }
