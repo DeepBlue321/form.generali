@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { TextField, Button, Container, Paper, MenuItem } from "@mui/material";
+import { TextField, Button, Container, MenuItem } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import * as Yup from "yup";
@@ -12,7 +12,7 @@ interface FormData {
   name: string;
   telephone: string;
   email: string;
-  language: string;
+  language?: string;
 }
 
 const languages = ["Čeština", "Angličtina", "Slovenčtina"];
@@ -25,27 +25,20 @@ const schema = Yup.object().shape({
   email: Yup.string()
     .email("Nesprávný formát emailu")
     .required("Pole Email je poviné"),
-  language: Yup.string()
-    .email("Invalid email")
-    .required("Pole Email je poviné"),
+  language: Yup.string(),
 });
 
-const MyStyledButton = styled("button")({
-  padding: 10, // means "1px", NOT "theme.spacing(1)"
+const MyStyledButton = styled(Button)(() => ({
   background: "#CB5F5D",
-  color: "white",
-  border: "none",
-  borderRadius: 6,
+  width: "100px",
   marginLeft: "auto",
-  boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-  cursor: "pointer",
-});
+}));
 
-const MyStyledForm = styled("form")((props) => ({
+const MyStyledForm = styled("form")(() => ({
   display: "flex",
   flexDirection: "column",
   gap: 14,
-  paddingTop: "30%", // means "1px", NOT "theme.spacing(1)"
+  paddingTop: "30%",
 }));
 
 function MyForm() {
@@ -54,14 +47,17 @@ function MyForm() {
   const {
     control,
     handleSubmit,
-    formState: { errors, isDirty, isValid },
+    formState: { errors },
   } = useForm({
+    mode: "onChange",
     resolver: yupResolver(schema),
   });
 
   const onSubmit = (data: FormData) => {
-    // Handle form submission logic here
-    console.log(data);
+    alert(`email: ${data.email}
+    jazyk: ${selectedValue}
+    Jméno: ${data.name}
+    číslo: ${data.telephone}`);
   };
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -70,7 +66,7 @@ function MyForm() {
 
   return (
     <Container maxWidth="sm">
-      <MyStyledForm onSubmit={handleSubmit(onSubmit)}>
+      <MyStyledForm>
         <Controller
           name="name"
           control={control}
@@ -118,22 +114,33 @@ function MyForm() {
           name="language"
           control={control}
           defaultValue=""
-          render={({}) => (
+          render={({ field }) => (
             <Select
               fullWidth
+              {...field}
               value={selectedValue}
               label="Hlavní jazyk"
               margin="dense"
+              type="selectedValue"
               onChange={handleChange}
             >
-              {languages.map((value) => {
-                return <MenuItem value={value}>{value}</MenuItem>;
+              {languages.map((value, id) => {
+                return (
+                  <MenuItem key={id} value={value}>
+                    {value}
+                  </MenuItem>
+                );
               })}
             </Select>
           )}
         />
-
-        <MyStyledButton type="submit">Submit</MyStyledButton>
+        <MyStyledButton
+          disabled={Object.keys(errors).length > 0}
+          variant="contained"
+          onClick={handleSubmit(onSubmit)}
+        >
+          Submit
+        </MyStyledButton>
       </MyStyledForm>
     </Container>
   );
